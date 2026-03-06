@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Abyssal Institute — Deep Sea Research</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Space+Mono:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #03070f;
+      --deep: #050e1c;
+      --abyss: #07152b;
+      --glow: #00e5ff;
+      --bio: #39ff96;
+      --amber: #ffb830;
+      --mist: #8ab3cc;
+      --paper: #d4e8f0;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--ink);
+      color: var(--paper);
+      font-family: 'Space Mono', monospace;
+      overflow-x: hidden;
+      cursor: crosshair;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 999;
+      opacity: 0.5;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(ellipse 80% 60% at 50% 100%, #0a2a4a 0%, var(--ink) 70%);
+    }
+
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(circle 300px at 20% 80%, rgba(0,229,255,0.06) 0%, transparent 70%),
+        radial-gradient(circle 200px at 80% 70%, rgba(57,255,150,0.05) 0%, transparent 60%);
+    }
+
+    /* Animated bubbles */
+    .bubbles {
+      position: absolute; inset: 0; pointer-events: none;
+    }
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(0,229,255,0.2);
+      animation: rise linear infinite;
+    }
+    .bubble:nth-child(1)  { width:6px;  height:6px;  left:15%; animation-duration:9s;  animation-delay:0s;   bottom:-20px; }
+    .bubble:nth-child(2)  { width:10px; height:10px; left:30%; animation-duration:13s; animation-delay:2s;   bottom:-20px; }
+    .bubble:nth-child(3)  { width:4px;  height:4px;  left:50%; animation-duration:8s;  animation-delay:4s;   bottom:-20px; }
+    .bubble:nth-child(4)  { width:8px;  height:8px;  left:65%; animation-duration:11s; animation-delay:1s;   bottom:-20px; }
+    .bubble:nth-child(5)  { width:5px;  height:5px;  left:80%; animation-duration:7s;  animation-delay:3.5s; bottom:-20px; }
+    .bubble:nth-child(6)  { width:12px; height:12px; left:42%; animation-duration:15s; animation-delay:6s;   bottom:-20px; }
+    .bubble:nth-child(7)  { width:3px;  height:3px;  left:70%; animation-duration:10s; animation-delay:0.5s; bottom:-20px; }
+
+    @keyframes rise {
+      0%   { transform: translateY(0) translateX(0);   opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 0.4; }
+      100% { transform: translateY(-100vh) translateX(20px); opacity: 0; }
+    }
+
+    /* Floating orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      pointer-events: none;
+      animation: drift ease-in-out infinite alternate;
+    }
+    .orb-1 { width:400px; height:400px; background: rgba(0,180,255,0.07); bottom: -100px; left: -100px; animation-duration: 12s; }
+    .orb-2 { width:300px; height:300px; background: rgba(57,255,150,0.05); bottom: 100px; right: -80px;  animation-duration: 9s;  animation-delay: 3s; }
+
+    @keyframes drift {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(30px, -40px) scale(1.1); }
+    }
+
+    .hero-content {
+      position: relative; z-index: 2;
+      text-align: center;
+      padding: 2rem;
+      animation: fadeUp 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform: translateY(40px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--glow);
+      border: 1px solid rgba(0,229,255,0.3);
+      padding: 0.4rem 1rem;
+      border-radius: 100px;
+      margin-bottom: 2rem;
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0,229,255,0); }
+      50%       { box-shadow: 0 0 20px 4px rgba(0,229,255,0.15); }
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 9vw, 7.5rem);
+      line-height: 0.95;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--glow);
+      display: block;
+      text-shadow: 0 0 40px rgba(0,229,255,0.4);
+    }
+
+    .hero-sub {
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      color: var(--mist);
+      max-width: 380px;
+      margin: 0 auto 3rem;
+      line-height: 1.8;
+    }
+
+    .depth-counter {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .depth-item {
+      text-align: center;
+    }
+    .depth-num {
+      display: block;
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: var(--amber);
+      line-height: 1;
+    }
+    .depth-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--mist);
+      margin-top: 0.3rem;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: transparent;
+      border: 1px solid var(--glow);
+      color: var(--glow);
+      padding: 0.9rem 2rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+
+    .hero-cta:hover {
+      background: rgba(0,229,255,0.1);
+      box-shadow: 0 0 30px rgba(0,229,255,0.2);
+      transform: translateY(-2px);
+    }
+
+    .hero-cta svg { transition: transform 0.3s; }
+    .hero-cta:hover svg { transform: translateX(4px); }
+
+    .scroll-line {
+      position: absolute;
+      bottom: 2rem; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+      font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--mist);
+      animation: fadeUp 2s 1s both;
+    }
+    .scroll-line::after {
+      content: '';
+      width: 1px; height: 50px;
+      background: linear-gradient(to bottom, var(--mist), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.3; } 50% { opacity: 1; }
+    }
+
+    /* ── SECTION SHARED ── */
+    section { padding: 6rem 2rem; }
+
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    .section-tag {
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--bio);
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      line-height: 1.1;
+      margin-bottom: 2rem;
+    }
+
+    /* ── SPECIES GRID ── */
+    .species-section {
+      background: var(--deep);
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .species-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .species-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1px;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .species-card {
+      background: var(--deep);
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s;
+      cursor: pointer;
+    }
+
+    .species-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle 200px at var(--mx, 50%) var(--my, 50%), rgba(0,229,255,0.08), transparent);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .species-card:hover::before { opacity: 1; }
+    .species-card:hover { background: #071629; }
+
+    .species-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      display: block;
+      filter: drop-shadow(0 0 12px rgba(0,229,255,0.4));
+      transition: transform 0.3s;
+    }
+    .species-card:hover .species-icon { transform: scale(1.15) rotate(-5deg); }
+
+    .species-depth {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--glow);
+      margin-bottom: 0.5rem;
+    }
+
+    .species-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .species-latin {
+      font-style: italic;
+      font-size: 0.7rem;
+      color: var(--mist);
+      margin-bottom: 1rem;
+    }
+
+    .species-desc {
+      font-size: 0.72rem;
+      line-height: 1.8;
+      color: rgba(212,232,240,0.7);
+    }
+
+    .species-bar {
+      margin-top: 1.5rem;
+      height: 2px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .species-bar-fill {
+      height: 100%;
+      background: linear-gradient(to right, var(--glow), var(--bio));
+      border-radius: 2px;
+      transform-origin: left;
+      animation: growBar 1.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-play-state: paused;
+    }
+    .species-card:hover .species-bar-fill { animation-play-state: running; }
+    @keyframes growBar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+    /* ── DEPTH MAP ── */
+    .depth-section {
+      background: var(--abyss);
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .depth-visual {
+      position: relative;
+      height: 420px;
+      border: 1px solid rgba(0,229,255,0.12);
+      overflow: hidden;
+      margin-top: 3rem;
+      background: linear-gradient(to bottom, #0d2035 0%, #020810 100%);
+    }
+
+    .depth-layer {
+      position: absolute;
+      left: 0; right: 0;
+      display: flex;
+      align-items: center;
+      padding: 0 2rem;
+      border-bottom: 1px dashed rgba(255,255,255,0.06);
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      color: var(--mist);
+      transition: background 0.3s;
+    }
+    .depth-layer:hover { background: rgba(0,229,255,0.04); }
+
+    .depth-layer-label { flex: 1; }
+    .depth-layer-range {
+      color: var(--amber);
+      font-family: 'Playfair Display', serif;
+      font-size: 0.9rem;
+    }
+
+    .layer-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      margin-right: 1rem;
+      flex-shrink: 0;
+    }
+
+    /* ── EXPEDITION LOG ── */
+    .log-section {
+      background: var(--ink);
+    }
+
+    .log-list { margin-top: 3rem; }
+
+    .log-entry {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 2rem;
+      padding: 2rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      align-items: start;
+      transition: padding-left 0.3s;
+    }
+    .log-entry:hover { padding-left: 1rem; }
+
+    .log-date {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      color: var(--mist);
+      line-height: 1.6;
+    }
+    .log-date strong {
+      display: block;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: var(--amber);
+      font-weight: 400;
+    }
+
+    .log-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+    .log-body {
+      font-size: 0.72rem;
+      line-height: 1.9;
+      color: rgba(212,232,240,0.65);
+    }
+    .log-tag {
+      display: inline-block;
+      font-size: 0.55rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      border-radius: 3px;
+      background: rgba(0,229,255,0.1);
+      color: var(--glow);
+      margin-top: 0.8rem;
+    }
+
+    /* ── NEWSLETTER ── */
+    .newsletter-section {
+      background: var(--deep);
+      border-top: 1px solid rgba(255,255,255,0.05);
+      text-align: center;
+    }
+
+    .newsletter-section .section-title { margin-bottom: 1rem; }
+    .newsletter-sub {
+      color: var(--mist);
+      font-size: 0.75rem;
+      line-height: 1.8;
+      max-width: 420px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .email-form {
+      display: flex;
+      gap: 0;
+      max-width: 440px;
+      margin: 0 auto;
+      border: 1px solid rgba(0,229,255,0.25);
+    }
+
+    .email-form input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      padding: 1rem 1.2rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--paper);
+    }
+    .email-form input::placeholder { color: rgba(212,232,240,0.3); }
+
+    .email-form button {
+      background: var(--glow);
+      border: none;
+      color: var(--ink);
+      padding: 1rem 1.5rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+    .email-form button:hover { background: var(--bio); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--ink);
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding: 3rem 2rem;
+    }
+
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: var(--paper);
+    }
+    .footer-logo span { color: var(--glow); }
+
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+      flex-wrap: wrap;
+    }
+    .footer-links a {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--mist);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--glow); }
+
+    .footer-copy {
+      font-size: 0.6rem;
+      color: rgba(138,179,204,0.4);
+      letter-spacing: 0.1em;
+      width: 100%;
+      text-align: center;
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1.2rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(3,7,15,0.7);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      color: var(--paper);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--glow); }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--mist);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--glow); }
+
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+      .log-entry { grid-template-columns: 1fr; gap: 0.5rem; }
+      .species-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-logo" href="#">Abyssal<span>.</span>Institute</a>
+    <ul class="nav-links">
+      <li><a href="#species">Species</a></li>
+      <li><a href="#depths">Depths</a></li>
+      <li><a href="#log">Expeditions</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="bubbles">
+      <div class="bubble"></div><div class="bubble"></div>
+      <div class="bubble"></div><div class="bubble"></div>
+      <div class="bubble"></div><div class="bubble"></div>
+      <div class="bubble"></div>
+    </div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="hero-content">
+      <div class="badge">Est. 1947 &nbsp;·&nbsp; 12,000m depth records</div>
+      <h1>
+        Exploring the<br>
+        <em>Eternal Dark</em>
+      </h1>
+      <p class="hero-sub">
+        We descend where light cannot. Mapping creatures, currents, and
+        chemical signatures in the world's deepest ocean trenches.
+      </p>
+
+      <div class="depth-counter">
+        <div class="depth-item">
+          <span class="depth-num">847</span>
+          <span class="depth-label">Species Catalogued</span>
+        </div>
+        <div class="depth-item">
+          <span class="depth-num">11.2km</span>
+          <span class="depth-label">Max Depth Reached</span>
+        </div>
+        <div class="depth-item">
+          <span class="depth-num">63</span>
+          <span class="depth-label">Active Expeditions</span>
+        </div>
+      </div>
+
+      <a class="hero-cta" href="#species">
+        Explore the Collection
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="scroll-line">Scroll</div>
+  </section>
+
+  <!-- SPECIES -->
+  <section class="species-section" id="species">
+    <div class="container">
+      <div class="species-header">
+        <div>
+          <p class="section-tag">// Fauna Database</p>
+          <h2 class="section-title">Notable Species<br>of the Hadal Zone</h2>
+        </div>
+        <a class="hero-cta" href="#">View Full Archive →</a>
+      </div>
+
+      <div class="species-grid">
+
+        <div class="species-card">
+          <span class="species-icon">🦑</span>
+          <div class="species-depth">3,000 – 6,000m</div>
+          <div class="species-name">Colossal Squid</div>
+          <div class="species-latin">Mesonychoteuthis hamiltoni</div>
+          <div class="species-desc">The largest known invertebrate, equipped with rotating hooks on its tentacles and eyes the diameter of dinner plates to capture bioluminescent photons.</div>
+          <div class="species-bar"><div class="species-bar-fill" style="width:78%"></div></div>
+        </div>
+
+        <div class="species-card">
+          <span class="species-icon">🐡</span>
+          <div class="species-depth">6,000 – 8,300m</div>
+          <div class="species-name">Mariana Snailfish</div>
+          <div class="species-latin">Pseudoliparis swirei</div>
+          <div class="species-desc">The deepest-dwelling vertebrate on record, its transparent gelatinous body allows ambient pressure to pass through rather than crush it.</div>
+          <div class="species-bar"><div class="species-bar-fill" style="width:93%"></div></div>
+        </div>
+
+        <div class="species-card">
+          <span class="species-icon">🪼</span>
+          <div class="species-depth">200 – 4,000m</div>
+          <div class="species-name">Atolla Jellyfish</div>
+          <div class="species-latin">Atolla wyvillei</div>
+          <div class="species-desc">When attacked, this crimson medusa triggers a spectacular bioluminescent alarm — a spinning blue wheel of light designed to attract larger predators to scare away its attacker.</div>
+          <div class="species-bar"><div class="species-bar-fill" style="width:61%"></div></div>
+        </div>
+
+        <div class="species-card">
+          <span class="species-icon">🦐</span>
+          <div class="species-depth">2,000 – 5,000m</div>
+          <div class="species-name">Rimicaris Shrimp</div>
+          <div class="species-latin">Rimicaris exoculata</div>
+          <div class="species-desc">Blind but not sightless — these shrimp possess photoreceptors on their backs to detect the faint thermal glow of hydrothermal vents, guiding them home in total darkness.</div>
+          <div class="species-bar"><div class="species-bar-fill" style="width:55%"></div></div>
+        </div>
+
+        <div class="species-card">
+          <span class="species-icon">🐙</span>
+          <div class="species-depth">300 – 2,000m</div>
+          <div class="species-name">Dumbo Octopus</div>
+          <div class="species-latin">Grimpoteuthis boylei</div>
+          <div class="species-desc">Propelled by two ear-like fins, this ghostly octopus is among the rarest ever filmed. It swallows prey whole — the only member of its genus to do so.</div>
+          <div class="species-bar"><div class="species-bar-fill" style="width:42%"></div></div>
+        </div>
+
+        <div class="species-card">
+          <span class="species-icon">🐟</span>
+          <div class="species-depth">1,500 – 3,000m</div>
+          <div class="species-name">Pacific Barreleye</div>
+          <div class="species-latin">Macropinna microstoma</div>
+          <div class="species-desc">Its transparent dome-shaped head encloses glowing tubular eyes that can rotate within the skull, always scanning upward through its own forehead for prey silhouettes.</div>
+          <div class="species-bar"><div class="species-bar-fill" style="width:70%"></div></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- DEPTH MAP -->
+  <section class="depth-section" id="depths">
+    <div class="container">
+      <p class="section-tag">// Ocean Stratigraphy</p>
+      <h2 class="section-title">A Map of Pressure<br>and Darkness</h2>
+
+      <div class="depth-visual">
+        <div class="depth-layer" style="top:0; height:20%">
+          <div class="layer-dot" style="background:#88ddff"></div>
+          <span class="depth-layer-label">SUNLIGHT ZONE &nbsp;·&nbsp; Epipelagic</span>
+          <span class="depth-layer-range">0–200m</span>
+        </div>
+        <div class="depth-layer" style="top:20%; height:16%">
+          <div class="layer-dot" style="background:#44aacc"></div>
+          <span class="depth-layer-label">TWILIGHT ZONE &nbsp;·&nbsp; Mesopelagic</span>
+          <span class="depth-layer-range">200–1,000m</span>
+        </div>
+        <div class="depth-layer" style="top:36%; height:18%">
+          <div class="layer-dot" style="background:#2277aa"></div>
+          <span class="depth-layer-label">MIDNIGHT ZONE &nbsp;·&nbsp; Bathypelagic</span>
+          <span class="depth-layer-range">1,000–4,000m</span>
+        </div>
+        <div class="depth-layer" style="top:54%; height:18%">
+          <div class="layer-dot" style="background:#114466"></div>
+          <span class="depth-layer-label">ABYSSAL ZONE &nbsp;·&nbsp; Abyssopelagic</span>
+          <span class="depth-layer-range">4,000–6,000m</span>
+        </div>
+        <div class="depth-layer" style="top:72%; height:28%; border-bottom:none">
+          <div class="layer-dot" style="background:#00e5ff; box-shadow: 0 0 8px #00e5ff;"></div>
+          <span class="depth-layer-label">HADAL ZONE &nbsp;·&nbsp; Hadalpelagic — <em style="color:var(--bio)">Our Domain</em></span>
+          <span class="depth-layer-range">6,000–11,000m</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOG -->
+  <section class="log-section" id="log">
+    <div class="container">
+      <p class="section-tag">// Expedition Records</p>
+      <h2 class="section-title">Field Notes from<br>the Trench</h2>
+
+      <div class="log-list">
+
+        <div class="log-entry">
+          <div class="log-date">
+            <strong>Feb 2026</strong>
+            Mariana Trench<br>11,034m
+          </div>
+          <div>
+            <div class="log-title">Three Unknown Species Documented Near Challenger Deep</div>
+            <div class="log-body">ROV Hadal-7 returned footage of an unclassified polychaete worm exhibiting patterned bioluminescent signaling behavior at approximately 10,800m — behavior not previously observed at these pressures. Two additional specimens await morphological analysis.</div>
+            <span class="log-tag">New Discovery</span>
+          </div>
+        </div>
+
+        <div class="log-entry">
+          <div class="log-date">
+            <strong>Nov 2025</strong>
+            Tonga Trench<br>9,100m
+          </div>
+          <div>
+            <div class="log-title">Microplastic Concentration Survey — Year 3</div>
+            <div class="log-body">Sediment cores extracted from the Tonga Trench confirm continued accumulation of polyethylene and polypropylene fibers at hadal depths. Concentration has increased 14% year-over-year, with fragments detected in the gut tissue of amphipod specimens.</div>
+            <span class="log-tag">Environmental Survey</span>
+          </div>
+        </div>
+
+        <div class="log-entry">
+          <div class="log-date">
+            <strong>Aug 2025</strong>
+            Kermadec Trench<br>8,600m
+          </div>
+          <div>
+            <div class="log-title">Chemosynthetic Community Mapped at Active Seep Site</div>
+            <div class="log-body">A 200-meter-wide cold seep community discovered at 8,600m, supporting dense populations of chemosynthetic bacteria, siboglinid tube worms, and an unprecedented density of methane-consuming archaea. The site is now under continuous monitoring.</div>
+            <span class="log-tag">Ecosystem Mapping</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER -->
+  <section class="newsletter-section" id="contact">
+    <div class="container">
+      <p class="section-tag">// Stay Informed</p>
+      <h2 class="section-title">Dispatches<br>from the Deep</h2>
+      <p class="newsletter-sub">
+        Monthly field reports, newly catalogued species, and expedition updates
+        delivered directly to your inbox.
+      </p>
+      <div class="email-form">
+        <input type="email" placeholder="your@email.com" />
+        <button type="button">Subscribe</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-logo">Abyssal<span>.</span>Institute</div>
+      <ul class="footer-links">
+        <li><a href="#">Research</a></li>
+        <li><a href="#">Species DB</a></li>
+        <li><a href="#">Expeditions</a></li>
+        <li><a href="#">Publications</a></li>
+        <li><a href="#">About</a></li>
+      </ul>
+    </div>
+    <p class="footer-copy">© 2026 Abyssal Institute. All specimens handled under international marine research protocols.</p>
+  </footer>
+
+  <script>
+    // Mouse glow effect on species cards
+    document.querySelectorAll('.species-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        card.style.setProperty('--mx', x + '%');
+        card.style.setProperty('--my', y + '%');
+      });
+    });
+
+    // Intersection observer for subtle reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.style.opacity = '1';
+          e.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.species-card, .log-entry').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>
